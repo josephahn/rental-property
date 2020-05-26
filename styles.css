@@ -1,0 +1,24 @@
+.map-container {
+  position: fixed;
+  top: 50px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* override theme styles */
+body {
+  min-width: 320px;
+}
+
+.container-fluid {
+  padding: 0;
+}
+
+nav {
+  padding: 0 15px !important;
+  margin: 0 !important;
+  border: none !important;
+}
