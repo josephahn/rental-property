@@ -28,18 +28,32 @@ last_date <- as.Date(as.yearmon("2020-03", "%Y-%m"))
 
 ui <- fluidPage(
   includeCSS("styles.css"),
-  navbarPage("Rental Property", theme = shinytheme("slate"), collapsible = TRUE,
-    tabPanel("Map", icon = icon("globe-americas"),
-      div(class = "map-container",
+  navbarPage(
+    "Rental Property",
+    theme = shinytheme("slate"),
+    collapsible = TRUE,
+    tabPanel(
+      "Map",
+      icon = icon("globe-americas"),
+      div(
+        class = "map-container",
         leafletOutput("mymap", width = "100%", height = "100%"),
-        absolutePanel(top = 62, left = 54, width = 250, fixed=TRUE, draggable = TRUE, height = "auto",
-          sliderInput("date",
+        absolutePanel(
+          top = 62,
+          left = 54,
+          width = 250,
+          fixed=TRUE,
+          draggable = TRUE,
+          height = "auto",
+          sliderInput(
+            "date",
             label = NULL,
             min = first_date,
             max = last_date,
             value = last_date,
             timeFormat="%b %Y",
-            animate = animationOptions(interval = 30, loop = FALSE))
+            animate = animationOptions(interval = 30, loop = FALSE)
+          )
         )
       )
     ),
