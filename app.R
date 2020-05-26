@@ -39,20 +39,27 @@ ui <- fluidPage(
         class = "map-container",
         leafletOutput("mymap", width = "100%", height = "100%"),
         absolutePanel(
-          top = 62,
-          left = 54,
-          width = 250,
+          id = "controls",
+          bottom = 12,
+          left = 12,
+          width = 340,
+          height = 300,
           fixed=TRUE,
           draggable = TRUE,
-          height = "auto",
           sliderInput(
-            "date",
+            inputId = "date",
             label = NULL,
             min = first_date,
             max = last_date,
             value = last_date,
             timeFormat="%b %Y",
             animate = animationOptions(interval = 30, loop = FALSE)
+          ),
+          radioButtons(
+            inputId = "type",
+            label = NULL,
+            choices = c("Rent / Sales", "Sales", "Rent"),
+            selected = "Rent / Sales"
           )
         )
       )
