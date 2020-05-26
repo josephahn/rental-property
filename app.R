@@ -37,4 +37,6 @@ server <- function(input, output, session) {
   })
 }
 
+# autoreload for devlepment
+options(shiny.autoreload = TRUE)
 shinyApp(ui = ui, server = server)
