@@ -33,7 +33,7 @@ server <- function(input, output, session) {
   output$mymap <- renderLeaflet({
     leaflet() %>%
       addTiles() %>%
-      setView(lat=39.8283, lng=-98.5795, zoom=2)
+      setView(lat = 39.8283, lng = -98.5795, zoom = 2)
   })
 }
 
