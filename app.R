@@ -19,17 +19,24 @@ first_city <- function(city) {
 # clean data
 sales_clean <- sales %>%
   filter(RegionName != "United States") %>%
-  separate(RegionName, c("city", "state_id"), sep = ", ") %>%
+  separate(RegionName, c("city", "state_id"), sep = ", ", remove = FALSE) %>%
   mutate(city = sapply(city, first_city)) %>%
   merge(cities, by = c("city", "state_id")) %>%
-  select(city, state_id, state_name, lat, lng, "2014-01":"2020-03")
+  select(region_name = RegionName, city, state_id, state_name, lat, lng, "2014-01":"2020-03")
 
 rents_clean <- rents %>%
   filter(RegionName != "United States") %>%
-  separate(RegionName, c("city", "state_id"), sep = ", ") %>%
+  separate(RegionName, c("city", "state_id"), sep = ", ", remove = FALSE) %>%
   mutate(city = sapply(city, first_city)) %>%
   merge(cities, by = c("city", "state_id")) %>%
-  select(city, state_id, state_name, "2014-01":"2020-03")
+  select(region_name = RegionName, city, state_id, state_name, lat, lng, "2014-01":"2020-03")
+
+rents_matching <- filter(rents_clean, rents_clean$region_name %in% sales_clean$region_name)
+sales_matching <- filter(sales_clean, sales_clean$region_name %in% rents_clean$region_name)
+ratio <- cbind(
+  select(rents_matching, city, state_id, state_name, lat, lng, "2014-01":"2020-03"),
+  select(rents_matching, matches("\\d{4}-\\d{2}")) / select(sales_matching, matches("\\d{4}-\\d{2}"))
+)
 
 # variables
 first_date <- as.Date(as.yearmon("2014-01", "%Y-%m"))
@@ -70,8 +77,8 @@ ui <- fluidPage(
           radioButtons(
             inputId = "type",
             label = NULL,
-            choices = c("Rent / Sales", "Sales", "Rent"),
-            selected = "Rent / Sales"
+            choices = c("Rent / Sale", "Sale", "Rent"),
+            selected = "Rent / Sale"
           ),
           selectInput(
             inputId = "state",
