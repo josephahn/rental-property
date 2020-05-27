@@ -34,7 +34,7 @@ rents_clean <- rents %>%
 rents_matching <- filter(rents_clean, rents_clean$region_name %in% sales_clean$region_name)
 sales_matching <- filter(sales_clean, sales_clean$region_name %in% rents_clean$region_name)
 ratio <- cbind(
-  select(rents_matching, city, state_id, state_name, lat, lng, "2014-01":"2020-03"),
+  select(rents_matching, city, state_id, state_name, lat, lng),
   select(rents_matching, matches("\\d{4}-\\d{2}")) / select(sales_matching, matches("\\d{4}-\\d{2}"))
 )
 
@@ -96,10 +96,48 @@ ui <- fluidPage(
 # shiny server
 
 server <- function(input, output, session) {
+  get_map_data <- function(date, type, state) {
+    ym_date <- str_sub(as.character(date), 1, 7)
+    is_all_states <- state == "All states"
+
+    if (type == "Rent / Sale") {
+      data <- ratio %>%
+        select(city, state_id, state_name, lat, lng, all_of(ym_date))
+    } else if (type == "Sale") {
+      data <- sales_clean %>%
+        select(city, state_id, state_name, lat, lng, all_of(ym_date))
+    } else if (type == "Rent") {
+      data <- rents_clean %>%
+        select(city, state_id, state_name, lat, lng, all_of(ym_date))
+    }
+
+    if (!is_all_states) {
+      data <- filter(data, state_name == state)
+    }
+
+    data
+  }
+
   output$mymap <- renderLeaflet({
     leaflet() %>%
       addTiles() %>%
       setView(lat = 39.8283, lng = -98.5795, zoom = 2)
+  })
+
+  # observe multiple events
+  # https://stackoverflow.com/questions/41960953/how-to-listen-for-more-than-one-event-expression-within-a-shiny-observeevent
+  toListen <- reactive({
+    list(input$date, input$type, input$state)
+  })
+
+  observeEvent(toListen(), {
+    leafletProxy("mymap") %>%
+    clearMarkers() %>%
+    clearShapes() %>%
+    addCircleMarkers(
+      data = get_map_data(input$date, input$type, input$state),
+      lat = ~lat,
+      lng = ~lng)
   })
 }
 
