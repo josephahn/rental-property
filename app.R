@@ -132,21 +132,28 @@ server <- function(input, output, session) {
   })
 
   observeEvent(toListen(), {
+    date <- str_sub(as.character(input$date), 1, 7)
+    map_data <- na.omit(get_map_data(input$date, input$type, input$state))
+    qpal <- colorQuantile("Reds", map_data[, date], n = 7)
+    
     leafletProxy("map") %>%
     clearMarkers() %>%
     clearShapes() %>%
     addCircleMarkers(
-      data = get_map_data(input$date, input$type, input$state),
+      data = map_data,
       label = lapply(
         sprintf(
           ifelse(input$type == "Rent / Sale", "%s: %f<br/>%s, %s", "%s: %d<br/>%s, %s"),
           input$type,
-          get_map_data(input$date, input$type, input$state)[, str_sub(as.character(input$date), 1, 7)],
-          get_map_data(input$date, input$type, input$state)$city,
-          get_map_data(input$date, input$type, input$state)$state_id),
+          map_data[, date],
+          map_data$city,
+          map_data$state_id),
         htmltools::HTML),
       lat = ~lat,
-      lng = ~lng)
+      lng = ~lng,
+      fillOpacity = 0.7,
+      color = ~qpal(map_data[, date]),
+      stroke = FALSE)
   })
 
   output$top <- renderUI({
