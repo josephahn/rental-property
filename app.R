@@ -136,6 +136,14 @@ server <- function(input, output, session) {
     clearShapes() %>%
     addCircleMarkers(
       data = get_map_data(input$date, input$type, input$state),
+      label = lapply(
+        sprintf(
+          ifelse(input$type == "Rent / Sale", "%s: %f<br/>%s, %s", "%s: %d<br/>%s, %s"),
+          input$type,
+          get_map_data(input$date, input$type, input$state)[, str_sub(as.character(input$date), 1, 7)],
+          get_map_data(input$date, input$type, input$state)$city,
+          get_map_data(input$date, input$type, input$state)$state_id),
+        htmltools::HTML),
       lat = ~lat,
       lng = ~lng)
   })
