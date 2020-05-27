@@ -22,19 +22,19 @@ sales_clean <- sales %>%
   separate(RegionName, c("city", "state_id"), sep = ", ") %>%
   mutate(city = sapply(city, first_city)) %>%
   merge(cities, by = c("city", "state_id")) %>%
-  select(city, state_id, lat, lng, "2014-01":"2020-03")
+  select(city, state_id, state_name, lat, lng, "2014-01":"2020-03")
 
 rents_clean <- rents %>%
   filter(RegionName != "United States") %>%
   separate(RegionName, c("city", "state_id"), sep = ", ") %>%
   mutate(city = sapply(city, first_city)) %>%
   merge(cities, by = c("city", "state_id")) %>%
-  select(city, state_id, "2014-01":"2020-03")
+  select(city, state_id, state_name, "2014-01":"2020-03")
 
 # variables
 first_date <- as.Date(as.yearmon("2014-01", "%Y-%m"))
 last_date <- as.Date(as.yearmon("2020-03", "%Y-%m"))
-states <- sort(unique(union(sales_clean$state_id, rents_clean$state_id)))
+states <- sort(unique(union(sales_clean$state_name, rents_clean$state_name)))
 
 # shiny ui
 
