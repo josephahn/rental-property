@@ -12,6 +12,8 @@
   background-color: white;
   padding: 10px;
   opacity: 0.6;
+  color: black;
+  font-size: 11px;
 }
 
 /* override theme styles */
