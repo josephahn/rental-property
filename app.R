@@ -34,7 +34,7 @@ rents_clean <- rents %>%
 # variables
 first_date <- as.Date(as.yearmon("2014-01", "%Y-%m"))
 last_date <- as.Date(as.yearmon("2020-03", "%Y-%m"))
-states <- sort(unique(sales_clean$state_id))
+states <- sort(unique(union(sales_clean$state_id, rents_clean$state_id)))
 
 # shiny ui
 
