@@ -134,32 +134,36 @@ server <- function(input, output, session) {
   observeEvent(toListen(), {
     date <- str_sub(as.character(input$date), 1, 7)
     map_data <- na.omit(get_map_data(input$date, input$type, input$state))
-    qpal <- colorQuantile("Reds", map_data[, date], n = 7)
+    binpal <- colorBin("Reds", map_data[, date], bins = 7)
     
-    leafletProxy("map") %>%
-    clearMarkers() %>%
-    clearShapes() %>%
-    addCircleMarkers(
-      data = map_data,
-      label = lapply(
-        sprintf(
-          ifelse(input$type == "Rent / Sale", "%s: %f<br/>%s, %s", "%s: %d<br/>%s, %s"),
-          input$type,
-          map_data[, date],
-          map_data$city,
-          map_data$state_id),
-        htmltools::HTML),
-      lat = ~lat,
-      lng = ~lng,
-      fillOpacity = 0.7,
-      color = ~qpal(map_data[, date]),
-      stroke = FALSE)
+    result <- leafletProxy("map") %>%
+      clearMarkers() %>%
+      clearShapes()
+    
+    if (nrow(map_data) > 0) {
+      result %>%
+        addCircleMarkers(
+          data = map_data,
+          label = lapply(
+            sprintf(
+              ifelse(input$type == "Rent / Sale", "%s: %f<br/>%s, %s", "%s: %d<br/>%s, %s"),
+              input$type,
+              map_data[, date],
+              map_data$city,
+              map_data$state_id),
+            htmltools::HTML),
+          lat = ~lat,
+          lng = ~lng,
+          fillOpacity = 0.7,
+          color = ~binpal(map_data[, date]),
+          stroke = FALSE)
+    }
   })
 
   output$top <- renderUI({
     data <- na.omit(get_map_data(input$date, input$type, input$state))
     num <- nrow(data)
-    top_num <- ifelse(num > 5, 5, num)
+    top_num <- ifelse(num > 10, 10, num)
     title <- paste("Top ", top_num, ":")
     
     if (top_num == 0) {
