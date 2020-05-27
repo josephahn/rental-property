@@ -8,22 +8,33 @@ library(zoo)
 # import data
 sales <- read.csv("data/sales.csv", check.names = FALSE)
 rents <- read.csv("data/rents.csv", check.names = FALSE)
+# https://simplemaps.com/data/us-cities
+cities <- read.csv("data/simplemaps_uscities.csv")
+
+# helper functions
+first_city <- function(city) {
+  unlist(strsplit(city, "-"))[1]
+}
 
 # clean data
 sales_clean <- sales %>%
   filter(RegionName != "United States") %>%
-  separate(RegionName, c("City", "State"), sep = ", ") %>%
-  select(City, State, "2014-01":"2020-03")
+  separate(RegionName, c("city", "state_id"), sep = ", ") %>%
+  mutate(city = sapply(city, first_city)) %>%
+  merge(cities, by = c("city", "state_id")) %>%
+  select(city, state_id, lat, lng, "2014-01":"2020-03")
 
 rents_clean <- rents %>%
   filter(RegionName != "United States") %>%
-  separate(RegionName, c("City", "State"), sep = ", ") %>%
-  select(City, State, "2014-01":"2020-03")
+  separate(RegionName, c("city", "state_id"), sep = ", ") %>%
+  mutate(city = sapply(city, first_city)) %>%
+  merge(cities, by = c("city", "state_id")) %>%
+  select(city, state_id, "2014-01":"2020-03")
 
 # variables
 first_date <- as.Date(as.yearmon("2014-01", "%Y-%m"))
 last_date <- as.Date(as.yearmon("2020-03", "%Y-%m"))
-states <- sort(unique(sales_clean$State))
+states <- sort(unique(sales_clean$state_id))
 
 # shiny ui
 
