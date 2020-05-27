@@ -23,6 +23,7 @@ rents_clean <- rents %>%
 # variables
 first_date <- as.Date(as.yearmon("2014-01", "%Y-%m"))
 last_date <- as.Date(as.yearmon("2020-03", "%Y-%m"))
+states <- sort(unique(sales_clean$State))
 
 # shiny ui
 
@@ -60,6 +61,11 @@ ui <- fluidPage(
             label = NULL,
             choices = c("Rent / Sales", "Sales", "Rent"),
             selected = "Rent / Sales"
+          ),
+          selectInput(
+            inputId = "state",
+            label = NULL,
+            choices = c("All states", states),
           )
         )
       )
