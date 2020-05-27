@@ -56,13 +56,13 @@ ui <- fluidPage(
       icon = icon("globe-americas"),
       div(
         class = "map-container",
-        leafletOutput("mymap", width = "100%", height = "100%"),
+        leafletOutput("map", width = "100%", height = "100%"),
         absolutePanel(
           id = "controls",
-          bottom = 12,
-          left = 12,
-          width = 340,
-          height = 300,
+          top = 62,
+          right = 12,
+          width = 336,
+          height = "auto",
           fixed=TRUE,
           draggable = TRUE,
           sliderInput(
@@ -84,7 +84,8 @@ ui <- fluidPage(
             inputId = "state",
             label = NULL,
             choices = c("All states", states),
-          )
+          ),
+          htmlOutput(outputId = "top")
         )
       )
     ),
@@ -118,7 +119,7 @@ server <- function(input, output, session) {
     data
   }
 
-  output$mymap <- renderLeaflet({
+  output$map <- renderLeaflet({
     leaflet() %>%
       addTiles() %>%
       setView(lat = 39.8283, lng = -98.5795, zoom = 2)
@@ -131,7 +132,7 @@ server <- function(input, output, session) {
   })
 
   observeEvent(toListen(), {
-    leafletProxy("mymap") %>%
+    leafletProxy("map") %>%
     clearMarkers() %>%
     clearShapes() %>%
     addCircleMarkers(
@@ -146,6 +147,30 @@ server <- function(input, output, session) {
         htmltools::HTML),
       lat = ~lat,
       lng = ~lng)
+  })
+
+  output$top <- renderUI({
+    data <- na.omit(get_map_data(input$date, input$type, input$state))
+    num <- nrow(data)
+    top_num <- ifelse(num > 5, 5, num)
+    title <- paste("Top ", top_num, ":")
+    
+    if (top_num == 0) {
+      return(HTML(""))
+    }
+    
+    date <- str_sub(as.character(input$date), 1, 7)
+    top_data <- top_n(data[order(data[date], decreasing = TRUE), ], top_num)
+    
+    top_list <- c()
+    for (row in 1:nrow(top_data)) {
+      location <- paste0(top_data[row, "city"], ", ", top_data[row, "state_id"])
+      value <- paste0(top_data[row, date])
+      list_item <- paste0(location, ": ", value, "<br/>")
+      top_list <- c(top_list, list_item)
+    }
+
+    HTML(paste(title, "<br/>", paste(top_list, collapse = "\n")))
   })
 }
 
