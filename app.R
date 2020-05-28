@@ -49,7 +49,7 @@ ui <- fluidPage(
   includeCSS("styles.css"),
   navbarPage(
     "Rental Property",
-    theme = shinytheme("slate"),
+    theme = shinytheme("cerulean"),
     collapsible = TRUE,
     tabPanel(
       "Map",
@@ -89,7 +89,20 @@ ui <- fluidPage(
         )
       )
     ),
-    tabPanel("Data", icon = icon("table")),
+    tabPanel(
+      "Data",
+      icon = icon("table"),
+      div(
+        class = "table-container",
+        fluidRow(
+          column(4,
+            selectInput("tabletype",
+                        "Type:",
+                        c("Ratio", "Sale", "Rent")))
+        ),
+        DT::dataTableOutput("table")
+      )
+    ),
     tabPanel("About", icon = icon("info-circle"))
   )
 )
@@ -135,11 +148,11 @@ server <- function(input, output, session) {
     date <- str_sub(as.character(input$date), 1, 7)
     map_data <- na.omit(get_map_data(input$date, input$type, input$state))
     binpal <- colorBin("Reds", map_data[, date], bins = 7)
-    
+
     result <- leafletProxy("map") %>%
       clearMarkers() %>%
       clearShapes()
-    
+
     if (nrow(map_data) > 0) {
       result %>%
         addCircleMarkers(
@@ -165,14 +178,14 @@ server <- function(input, output, session) {
     num <- nrow(data)
     top_num <- ifelse(num > 10, 10, num)
     title <- paste("Top ", top_num, ":")
-    
+
     if (top_num == 0) {
       return(HTML(""))
     }
-    
+
     date <- str_sub(as.character(input$date), 1, 7)
     top_data <- top_n(data[order(data[date], decreasing = TRUE), ], top_num)
-    
+
     top_list <- c()
     for (row in 1:nrow(top_data)) {
       location <- paste0(top_data[row, "city"], ", ", top_data[row, "state_id"])
@@ -182,6 +195,20 @@ server <- function(input, output, session) {
     }
 
     HTML(paste(title, "<br/>", paste(top_list, collapse = "\n")))
+  })
+
+  output$table <- DT::renderDataTable({
+    if (input$tabletype == "Ratio") {
+      data <- ratio
+    }
+    if (input$tabletype == "Sale") {
+      data <- sales_clean
+    }
+    if (input$tabletype == "Rent") {
+      data <- rents_clean
+    }
+
+    DT::datatable(data, options = list(scrollX = TRUE))
   })
 }
 

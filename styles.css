@@ -8,6 +8,10 @@
   padding: 0;
 }
 
+.table-container {
+  padding: 15px;
+}
+
 #controls {
   background-color: white;
   padding: 10px;
