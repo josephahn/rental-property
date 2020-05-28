@@ -4,6 +4,7 @@ library(dplyr)
 library(tidyr)
 library(leaflet)
 library(zoo)
+library(stringr)
 
 # import data
 sales <- read.csv("data/sales.csv", check.names = FALSE)
