@@ -93,7 +93,7 @@ ui <- fluidPage(
       "Data",
       icon = icon("table"),
       div(
-        class = "table-container",
+        class = "general-container",
         fluidRow(
           column(4,
             selectInput("tabletype",
@@ -103,7 +103,20 @@ ui <- fluidPage(
         DT::dataTableOutput("table")
       )
     ),
-    tabPanel("About", icon = icon("info-circle"))
+    tabPanel(
+      "About",
+      icon = icon("info-circle"),
+      div(
+        class = "general-container",
+        p("What areas are better to invest in rental properties (real estate that you own and rent out to tenants)? This is the general motivation behind this Shiny app."),
+        p("There are many factors to consider when investing in real estate but a simple approach is comparing average rents to home sale prices. The data for used was found through ",
+          a(href = "https://www.zillow.com/research/data/", "Zillow"),
+          " and ",
+          a(href = "https://simplemaps.com/data/us-cities", "simplemaps"),
+          " (for city latitude and longitude)."
+        )
+      )
+    )
   )
 )
 
